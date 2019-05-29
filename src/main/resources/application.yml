@@ -1,0 +1,31 @@
+spring:
+  main:
+    web-application-type: none
+    allow-bean-definition-overriding: true
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: 192.168.0.132:8092
+          zk-nodes: 192.168.0.132
+      bindings:
+        input:
+          binder: kafka
+          destination: topicrss
+        output:
+          binder: kafka
+          destination: topicrss
+format: dd/MM/YYYY hh:mm:ss
+fixed-delay: 3000
+urlner: http://192.168.0.30:9999/opener
+urlinsight:  http://192.168.0.30:8080/api/
+ner:  true
+graph:
+  enabled: true
+elasticsearch:
+  enabled: true
+  host: 192.168.0.132
+  clustername: insight
+  port: 9200
+  node-port: 9200
+  index-name: gazetter
