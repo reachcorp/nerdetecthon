@@ -55,6 +55,9 @@ public class NerService {
     @Value("${urlinsight}")
     private String urlinsight;
 
+    @Value("${urlgeotrouvethon}")
+    private String urlgeotrouvethon;
+
     @Value("${format}")
     private String format;
 
@@ -185,7 +188,7 @@ public class NerService {
                 for (String locationName : collect) {
                     this.log.info("Found locationName: " + locationName);
                     if (locationName != null) {
-                        coordinates = RefGeoUtils.getRefGeoCoordinates(locationName);
+                        coordinates = RefGeoUtils.getRefGeoCoordinates(locationName, urlgeotrouvethon);
                         if (coordinates != null)
                             break;
                     }
