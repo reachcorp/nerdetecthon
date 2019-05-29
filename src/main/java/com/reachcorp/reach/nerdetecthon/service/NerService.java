@@ -185,7 +185,7 @@ public class NerService {
                 for (String locationName : collect) {
                     this.log.info("Found locationName: " + locationName);
                     if (locationName != null) {
-                        coordinates = RefGeoUtils.getRefGeoCoordinates(locationName, this.elasticSearchService);
+                        coordinates = RefGeoUtils.getRefGeoCoordinates(locationName);
                         if (coordinates != null)
                             break;
                     }
