@@ -11,7 +11,7 @@ ADD entrypoint.sh entrypoint.sh
 RUN chmod 755 entrypoint.sh && chown insight:insight entrypoint.sh
 USER insight
 
-ADD NERdetecthon*.jar app.jar
+ADD nerdetecthon*.jar app.jar
 
 ENTRYPOINT ["./entrypoint.sh"]
 

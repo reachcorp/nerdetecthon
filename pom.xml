@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.reachcorp.reach</groupId>
-    <artifactId>NERdetecthon</artifactId>
+    <artifactId>nerdetecthon</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <name>NERdetecthon</name>
+    <name>nerdetecthon</name>
     <description>Kafka consumer designed for data enrichment</description>
 
     <properties>
@@ -210,7 +210,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <repository>NERdetecthon</repository>
+                    <repository>nerdetecthon</repository>
                     <contextDirectory>${project.build.directory}</contextDirectory>
                 </configuration>
             </plugin>

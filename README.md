@@ -1,4 +1,4 @@
-# NERdetecthon
+# nerdetecthon
 
 ## Prérequis
 1. Install java 11 & maven

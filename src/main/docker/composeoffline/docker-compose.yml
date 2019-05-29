@@ -103,8 +103,8 @@ services:
 
     kaf2json:
         image: 192.168.65.5:8093/cwolff/opener-docker-kaf2json
-    NERdetecthon-app:
-        image: 192.168.65.5:8093/NERdetecthon:latest
+    nerdetecthon-app:
+        image: 192.168.65.5:8093/nerdetecthon:latest
         environment:
         # - _JAVA_OPTIONS=-Xmx512m -Xms256m
         - SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS=kafka
