@@ -12,12 +12,14 @@ import com.reachcorp.reach.nerdetecthon.dto.source.twitter.TwitterSourceMessage;
 import com.reachcorp.reach.nerdetecthon.service.InsightService;
 import com.reachcorp.reach.nerdetecthon.service.NerService;
 import com.reachcorp.reach.nerdetecthon.service.utils.NerResponseHandler;
+import com.reachcorp.reach.nerdetecthon.service.utils.RefGeoUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -34,12 +36,14 @@ public class NERdetecthonApplicationTests {
 
     private final Logger log = LoggerFactory.getLogger(NERdetecthonApplicationTests.class);
 
+    @Value("${urlgeotrouvethon}")
+    private String urlgeotrouvethon;
+
     @Autowired
     private NerService nerService;
 
     @Autowired
     private InsightService insightClientService;
-
 
     @Test
     public void contextLoads() {
@@ -118,4 +122,13 @@ public class NERdetecthonApplicationTests {
         this.insightClientService.create(rawData);
     }
 
+    @Test
+    public void getCoordinateFromLocation() throws IOException {
+        String coordinates = RefGeoUtils.getRefGeoCoordinates("Paris", urlgeotrouvethon);
+        Assert.assertEquals("48.8566101,2.3514992", coordinates);
+        coordinates = RefGeoUtils.getRefGeoCoordinates("Palais de l'élysée", urlgeotrouvethon);
+        Assert.assertEquals("48.87037435,2.3160687345508", coordinates);
+        coordinates = RefGeoUtils.getRefGeoCoordinates("zzzzzzzzzzz", urlgeotrouvethon);
+        Assert.assertEquals("-99,99", coordinates);
+    }
 }

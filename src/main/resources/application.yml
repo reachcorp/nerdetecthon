@@ -6,8 +6,8 @@ spring:
     stream:
       kafka:
         binder:
-          brokers: 192.168.0.132:8092
-          zk-nodes: 192.168.0.132
+          brokers: 192.168.0.40:8092
+          zk-nodes: 192.168.0.40
       bindings:
         input:
           binder: kafka
@@ -19,6 +19,7 @@ format: dd/MM/YYYY hh:mm:ss
 fixed-delay: 3000
 urlner: http://192.168.0.30:9999/opener
 urlinsight:  http://192.168.0.30:8080/api/
+urlgeotrouvethon: http://192.168.0.30:9966/locate/
 ner:  true
 graph:
   enabled: true

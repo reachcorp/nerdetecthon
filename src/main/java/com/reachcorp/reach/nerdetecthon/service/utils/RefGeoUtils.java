@@ -9,25 +9,25 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-
-import com.reachcorp.reach.nerdetecthon.service.NerService;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Created by cpoullot on 21/01/2019.
- * classe pour interroger le reférentiel géographique via ElasticSearchService
- * et recuperer les coordonnées
+ * classe pour interroger le reférentiel géographique et recuperer les coordonnées
  */
 public class RefGeoUtils {
     private final static Logger log = LoggerFactory.getLogger(RefGeoUtils.class);
 
-    /*   methode pour interroger le reférentiel géographique via ElasticSearchService
-     et recuperer les coordonnées de locationName*/
-    public static String getRefGeoCoordinates(String locationName, String urlgeotrouvethon) throws IOException {
+    /*   methode pour interroger le reférentiel géographique et recuperer les coordonnées de locationName*/
+    public static String getRefGeoCoordinates(String locationName, String urlGeotrouvethon) throws IOException {
         log.info("Getting coordinates for " + locationName);
         String coordinates = null;
 
         try {
-            URL url = new URL(urlgeotrouvethon+"/locate/paris");
+            URL url = new URL(urlGeotrouvethon +
+                    URLEncoder.encode(locationName, StandardCharsets.UTF_8.toString()).replace("+", "%20"));
+
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
 

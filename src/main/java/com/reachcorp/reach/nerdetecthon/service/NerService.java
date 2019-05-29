@@ -182,24 +182,24 @@ public class NerService {
 
         // Extract coordinate if Location is present
         String coordinates = null;
-        if (this.useElasticSearch) {
-            try {
-                final List<String> collect = insightEntities.stream().filter((insightEntity) -> insightEntity instanceof Location).map((insightEntity) -> ((Location) insightEntity).getLocationName()).collect(Collectors.toList());
-                for (String locationName : collect) {
-                    this.log.info("Found locationName: " + locationName);
-                    if (locationName != null) {
-                        coordinates = RefGeoUtils.getRefGeoCoordinates(locationName, urlgeotrouvethon);
-                        if (coordinates != null)
-                            break;
-                    }
+
+        try {
+            final List<String> collect = insightEntities.stream().filter((insightEntity) -> insightEntity instanceof Location).map((insightEntity) -> ((Location) insightEntity).getLocationName()).collect(Collectors.toList());
+            for (String locationName : collect) {
+                this.log.info("Found locationName: " + locationName);
+                if (locationName != null) {
+                    coordinates = RefGeoUtils.getRefGeoCoordinates(locationName, urlgeotrouvethon);
+                    if (coordinates != null)
+                        break;
                 }
-                if (coordinates == null) {
-                    this.log.warn("Found no coordinates among " + collect.size() + " locations");
-                }
-            } catch (Exception e) {
-                this.log.error("Error While getting LocationName list", e);
             }
+            if (coordinates == null) {
+                this.log.warn("Found no coordinates among " + collect.size() + " locations");
+            }
+        } catch (Exception e) {
+            this.log.error("Error While getting LocationName list", e);
         }
+
         // Update RawData Location
         if (coordinates != null) {
             this.log.info("Updating raw data coordinates");
