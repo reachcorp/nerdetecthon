@@ -7,10 +7,16 @@
 
 2. Add JAVA_HOME
 
+    2.a. éditer le fichier /etc/environment
+
        $ sudo nano /etc/environment
-      *ajouter la ligne suivante:*
+    2.b. ajouter la ligne suivante:
       
        JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/"
+       
+    2.c. "sourcer" le fichier /etc/environment
+      
+       source /etc/environment
        
 3. Check versions
 
