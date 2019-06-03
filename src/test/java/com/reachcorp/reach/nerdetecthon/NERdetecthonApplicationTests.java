@@ -9,6 +9,7 @@ import com.reachcorp.reach.nerdetecthon.dto.source.SimpleRawData;
 import com.reachcorp.reach.nerdetecthon.dto.source.ner.NerJsonObjectResponse;
 import com.reachcorp.reach.nerdetecthon.dto.source.rss.RssSourceMessage;
 import com.reachcorp.reach.nerdetecthon.dto.source.twitter.TwitterSourceMessage;
+import com.reachcorp.reach.nerdetecthon.dto.source.twitter.NerDetecthonSourceMessage;
 import com.reachcorp.reach.nerdetecthon.service.InsightService;
 import com.reachcorp.reach.nerdetecthon.service.NerService;
 import com.reachcorp.reach.nerdetecthon.service.utils.NerResponseHandler;
@@ -69,6 +70,17 @@ public class NERdetecthonApplicationTests {
         assertThat(twitterSourceMessage.getText()).isNotEmpty();
         log.info(twitterSourceMessage.getText());
         assertThat(twitterSourceMessage.getCreatedAt()).isNotNull();
+    }
+
+    @Test
+    public void NerDetecthonSourceMessageTest() throws IOException {
+        final Logger log = LoggerFactory.getLogger(NERdetecthonApplicationTests.class);
+        ObjectMapper mapper = new ObjectMapper();
+        final InputStream resourceAsStream = NERdetecthonApplicationTests.class.getResourceAsStream("/sample_nerdetecton.json");
+        final NerDetecthonSourceMessage nerDetecthonSourceMessage = mapper.readValue(resourceAsStream, NerDetecthonSourceMessage.class);
+        assertThat(nerDetecthonSourceMessage.getText()).isNotEmpty();
+        log.info(nerDetecthonSourceMessage.getText());
+        assertThat(nerDetecthonSourceMessage.getCreatedAt()).isNotNull();
     }
 
     @Test

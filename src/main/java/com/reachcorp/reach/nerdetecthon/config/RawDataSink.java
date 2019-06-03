@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.reachcorp.reach.nerdetecthon.dto.source.rawtext.RawTextMessage;
 import com.reachcorp.reach.nerdetecthon.dto.source.rss.RssSourceMessage;
 import com.reachcorp.reach.nerdetecthon.dto.source.twitter.TwitterSourceMessage;
+import com.reachcorp.reach.nerdetecthon.dto.source.twitter.NerDetecthonSourceMessage;
 import com.reachcorp.reach.nerdetecthon.service.NerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,10 +68,10 @@ public class RawDataSink {
 //        }
 
         try {
-            if (message.contains("created_at")) {
-                final TwitterSourceMessage twitterSourceMessage = mapperObj.readValue(message, TwitterSourceMessage.class);
+            if (message.contains("tweet")) {
+                final NerDetecthonSourceMessage nerDetecthonSourceMessage = mapperObj.readValue(message, NerDetecthonSourceMessage.class);
                 log.info("Sucessfully parsed TwitterMessage.");
-                this.nerService.doSend(twitterSourceMessage);
+                this.nerService.doSend(nerDetecthonSourceMessage);
 
             } else if (message.contains("channel")) {
                 final RssSourceMessage rssSourceMessage = mapperObj.readValue(message, RssSourceMessage.class);
