@@ -11,10 +11,10 @@ spring:
       bindings:
         input:
           binder: kafka
-          destination: topicrss
+          destination: textToNER
         output:
           binder: kafka
-          destination: topicrss
+          destination: textToNER
 format: dd/MM/YYYY hh:mm:ss
 fixed-delay: 3000
 urlner: http://192.168.0.31:9999/opener
