@@ -194,7 +194,7 @@ public class InsightService {
         return sourceExternalIdField.get(dto);
     }
 
-    private String doSendRelation(String idSource, String idTarget, String sourceType, String targetType) throws RestClientException {
+    public String doSendRelation(String idSource, String idTarget, String sourceType, String targetType) throws RestClientException {
         final HttpHeaders headers = InsightHttpUtils.getHttpJsonHeader(this.cookies);
         this.log.info("Creating relation between " + idSource + "/" + sourceType + " and " + idTarget + "/" + targetType);
         final Relation relation = new Relation();

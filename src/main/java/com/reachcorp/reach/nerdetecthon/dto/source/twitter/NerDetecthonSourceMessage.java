@@ -16,13 +16,28 @@ public class NerDetecthonSourceMessage {
 
 
     @JsonProperty("idBio")
-    private Long idBio;
+    private String idBio;
     @JsonProperty("tweet")
     private TwitterSourceMessage tweet;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
 
+    public String getIdBio() {
+        return idBio;
+    }
+
+    public void setIdBio(String idBio) {
+        this.idBio = idBio;
+    }
+
+    public TwitterSourceMessage getTweet() {
+        return tweet;
+    }
+
+    public void setTweet(TwitterSourceMessage tweet) {
+        this.tweet = tweet;
+    }
 
     @JsonAnyGetter
     public Map<String, Object> getAdditionalProperties() {

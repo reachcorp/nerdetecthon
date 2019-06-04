@@ -14,6 +14,7 @@ import com.reachcorp.reach.nerdetecthon.dto.source.rawtext.RawTextMessage;
 import com.reachcorp.reach.nerdetecthon.dto.source.rss.Item;
 import com.reachcorp.reach.nerdetecthon.dto.source.rss.RssSourceMessage;
 import com.reachcorp.reach.nerdetecthon.dto.source.twitter.TwitterSourceMessage;
+import com.reachcorp.reach.nerdetecthon.dto.source.twitter.NerDetecthonSourceMessage;
 import com.reachcorp.reach.nerdetecthon.service.utils.NerResponseHandler;
 import com.reachcorp.reach.nerdetecthon.service.utils.NerXmlResponseParser;
 import com.reachcorp.reach.nerdetecthon.service.utils.RefGeoUtils;
@@ -120,6 +121,17 @@ public class NerService {
                 nerJsonObjectResponse = submitNerRequest(simpleRawData);
             }
             createInRemoteServices(simpleRawData, nerJsonObjectResponse);
+        }else if (message instanceof NerDetecthonSourceMessage) {
+            this.log.info("Processing DETECTHON message");
+            final NerDetecthonSourceMessage nerDetecthonSourceMessage = (NerDetecthonSourceMessage) message;
+            final TwitterSourceMessage twitterSourceMessage = nerDetecthonSourceMessage.getTweet();
+            final SimpleRawData simpleRawData = SimpleRawData.fromTwitterSourceMessage(twitterSourceMessage);
+            NerJsonObjectResponse nerJsonObjectResponse = null;
+            if (this.useNer) {
+                    nerJsonObjectResponse = submitNerRequest(simpleRawData);
+            }
+            createInRemoteServices(nerDetecthonSourceMessage.getIdBio(),simpleRawData, nerJsonObjectResponse);
+
         } else if (message instanceof RawTextMessage) {
             this.log.info("Processing RawText message");
             final RawTextMessage rawTextSourceMessage = (RawTextMessage) message;
@@ -165,7 +177,7 @@ public class NerService {
         return null;
     }
 
-    private void createInRemoteServices(SimpleRawData simpleRawData, NerJsonObjectResponse nerObjectResponse) throws Exception {
+    private void createInRemoteServices(String idbio, SimpleRawData simpleRawData, NerJsonObjectResponse nerObjectResponse) throws Exception {
         final NerResponseHandler responseHandler = new NerResponseHandler(nerObjectResponse, simpleRawData);
         log.info("Sending raw data to Insight");
         final RawData rawData = responseHandler.getRawData();
@@ -175,6 +187,11 @@ public class NerService {
         rawData.setId(identifiers.getId());
         rawData.setExternalId(identifiers.getExternalId());
         log.info("Sent raw data " + identifiers.getId() + " / " + identifiers.getExternalId() + "  to Insight  ");
+        if (idbio!=null) {
+            //create Relation avec idbio
+            insightClientService.doSendRelation(idbio, rawData.getExternalId(), "Biographics", "RawData");
+        }
+
 
         // Get Extracted entities
         final List<InsightEntity> insightEntities = responseHandler.getInsightEntities();
@@ -336,7 +353,10 @@ public class NerService {
             this.insightClientService.update(rawData);
         }
 
+    }
 
+    private void createInRemoteServices(SimpleRawData simpleRawData, NerJsonObjectResponse nerObjectResponse) throws Exception {
+        createInRemoteServices(null,simpleRawData,nerObjectResponse);
     }
 
     private static void setFieldValue(Object dto, String fieldName, String externalIdValue) throws IllegalAccessException {

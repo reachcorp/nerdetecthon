@@ -70,7 +70,7 @@ public class RawDataSink {
         try {
             if (message.contains("tweet")) {
                 final NerDetecthonSourceMessage nerDetecthonSourceMessage = mapperObj.readValue(message, NerDetecthonSourceMessage.class);
-                log.info("Sucessfully parsed TwitterMessage.");
+                log.info("Sucessfully parsed Detecthon message.");
                 this.nerService.doSend(nerDetecthonSourceMessage);
 
             } else if (message.contains("channel")) {

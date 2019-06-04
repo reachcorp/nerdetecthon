@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.reachcorp.reach.nerdetecthon.dto.entities.Identifiers;
 import com.reachcorp.reach.nerdetecthon.dto.entities.insight.Biographics;
 import com.reachcorp.reach.nerdetecthon.dto.entities.insight.InsightEntity;
+import com.reachcorp.reach.nerdetecthon.dto.entities.insight.Location;
 import com.reachcorp.reach.nerdetecthon.dto.entities.insight.RawData;
 import com.reachcorp.reach.nerdetecthon.dto.source.SimpleRawData;
 import com.reachcorp.reach.nerdetecthon.dto.source.ner.NerJsonObjectResponse;
@@ -78,9 +79,36 @@ public class NERdetecthonApplicationTests {
         ObjectMapper mapper = new ObjectMapper();
         final InputStream resourceAsStream = NERdetecthonApplicationTests.class.getResourceAsStream("/sample_nerdetecton.json");
         final NerDetecthonSourceMessage nerDetecthonSourceMessage = mapper.readValue(resourceAsStream, NerDetecthonSourceMessage.class);
-        assertThat(nerDetecthonSourceMessage.getText()).isNotEmpty();
-        log.info(nerDetecthonSourceMessage.getText());
-        assertThat(nerDetecthonSourceMessage.getCreatedAt()).isNotNull();
+        final TwitterSourceMessage twitterSourceMessage =nerDetecthonSourceMessage.getTweet();
+        final SimpleRawData simpleRawData = SimpleRawData.fromTwitterSourceMessage(twitterSourceMessage);
+        final NerJsonObjectResponse nerJsonObjectResponse = this.nerService.submitNerRequest(simpleRawData);
+        final String content = nerJsonObjectResponse.getContent();
+        Assert.assertNotNull(content);
+        this.log.info(content);
+        final List<InsightEntity> objects = NerResponseHandler.extractInsightEntites(nerJsonObjectResponse);
+        for (final InsightEntity object : objects) {
+            this.log.info(object.toString());
+            System.out.println(object.toString());
+            if (object instanceof Location)
+            {
+                Location location= (Location)object;
+                String coordinates = RefGeoUtils.getRefGeoCoordinates(location.getLocationName(), urlgeotrouvethon);
+                System.out.println(coordinates);
+            }
+        }
+    }
+
+    @Test
+    public void NerDetecthonSourceMessageInsightTest() throws IOException {
+        final Logger log = LoggerFactory.getLogger(NERdetecthonApplicationTests.class);
+        ObjectMapper mapper = new ObjectMapper();
+        final InputStream resourceAsStream = NERdetecthonApplicationTests.class.getResourceAsStream("/sample_nerdetecton.json");
+        final NerDetecthonSourceMessage nerDetecthonSourceMessage = mapper.readValue(resourceAsStream, NerDetecthonSourceMessage.class);
+        try {
+            this.nerService.doSend(nerDetecthonSourceMessage);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
