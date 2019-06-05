@@ -1,60 +1,11 @@
 version: '3'
 services:
-    #BROKER
-    zookeeper:
-        image: wurstmeister/zookeeper:latest
-        ports:
-            - 2181:2181
-    kafka:
-        image: wurstmeister/kafka:latest
-        container_name: kafka
-        environment:
-            KAFKA_ADVERTISED_HOST_NAME: 192.168.0.31
-            KAFKA_ADVERTISED_PORT: 8092
-            KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-            KAFKA_CREATE_TOPICS: "housToGoogle:1:1,housToTwit:1:1,housToTravel:1:1,housToCompara:1:1,urlToScrapy:1:1,googleToTwit:1:1,textToNER:1:1,tweetToColissi:1:1,tweetToCrousti:1:1,ggimgToColissi:1:1,locToColissi:1:1,bioToColissi:1:1,orgaToColissi:1:1,mediaToColissi:1:1"
-        ports:
-            - 8092:9092
-    #WRAPPER
-    wrapper:
-        image: cwolff/opener-docker-wrapper
-        build:
-          context: ./wrapper
-        environment:
-          SANIC_OPENER_IDENTIFY_LANGUAGE_URL: http://language_identifier
-          SANIC_OPENER_TOKENIZE_URL: http://tokenizer
-          SANIC_OPENER_POS_URL: http://pos_tagger
-          SANIC_OPENER_NER_URL: http://ner
-          SANIC_OPENER_KAF2JSON_URL: http://kaf2json
-        ports:
-          - 9999:80
-        depends_on:
-          - language_identifier
-          - tokenizer
-          - pos_tagger
-          - ner
-          - kaf2json
-
-    language_identifier:
-        image: cwolff/opener-docker-language-identifier
-
-    tokenizer:
-        image: cwolff/opener-docker-tokenizer
-
-    pos_tagger:
-        image: cwolff/opener-docker-pos-tagger
-
-    ner:
-        image: cwolff/opener-docker-ner
-
-    kaf2json:
-        image: cwolff/opener-docker-kaf2json
-
     nerdetecthon:
         image: reachhubcorp/nerdetecthon:latest
+        container_name: nerdetecthon
         environment:
               SPRING_MAIN_WEB_APPLICATION_TYPE: none
-              SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS: kafka:9092
+              SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS: 192.168.0.31:8092
               SPRING_CLOUD_STREAM_KAFKA_BINDER_ZK_NODES: zookeeper
               SPRING_CLOUD_STREAM_BINDINGS_INPUT_BINDER: kafka
               SPRING_CLOUD_STREAM_BINDINGS_INPUT_DESTINATION: textToNER
@@ -72,7 +23,7 @@ services:
               GRAPH_HOST: http://192.168.0.31:8080/api/
               ELASTICSEARCH_ENABLED: 'true'
               ELASTICSEARCH_INDEX_NAME: gazetter
-              ELASTICSEARCH_HOST: elasticsearch
+              ELASTICSEARCH_HOST: 192.168.0.31
               ELASTICSEARCH_PORT: 9200
               ELASTICSEARCH_NODE_PORT: 9300
               ELASTICSEARCH_CLUSTERNAME: insight
