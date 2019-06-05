@@ -4,26 +4,26 @@ services:
         image: reachhubcorp/nerdetecthon:latest
         container_name: nerdetecthon
         environment:
-              SPRING_MAIN_WEB_APPLICATION_TYPE: none
-              SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS: 192.168.0.31:8092
-              SPRING_CLOUD_STREAM_KAFKA_BINDER_ZK_NODES: zookeeper
-              SPRING_CLOUD_STREAM_BINDINGS_INPUT_BINDER: kafka
-              SPRING_CLOUD_STREAM_BINDINGS_INPUT_DESTINATION: textToNER
-              SPRING_CLOUD_STREAM_BINDINGS_OUTPUT_BINDER: kafka
-              SPRING_CLOUD_STREAM_BINDINGS_OUTPUT_DESTINATION: bioToColissi
-              FORMAT: dd/MM/YYYY hh:mm:ss
-              FIXED_DELAY: 3000
-              URLNER: http://wrapper:80/opener
-              URLINSIGHT: http://192.168.0.31:8080/api/
-              URLGEOTROUVETHON: http://192.168.0.31:9966/locate/
-              NER: 'true'
-              MOCK: 'false'
-              JAVA_OPTS:  -Xmx2048m -Xms256m
-              GRAPH_ENABLED: 'true'
-              GRAPH_HOST: http://192.168.0.31:8080/api/
-              ELASTICSEARCH_ENABLED: 'true'
-              ELASTICSEARCH_INDEX_NAME: gazetter
-              ELASTICSEARCH_HOST: 192.168.0.31
-              ELASTICSEARCH_PORT: 9200
-              ELASTICSEARCH_NODE_PORT: 9300
-              ELASTICSEARCH_CLUSTERNAME: insight
+            SPRING_MAIN_WEB_APPLICATION_TYPE: none
+            SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS: "${ipkafka}:8092"
+            SPRING_CLOUD_STREAM_KAFKA_BINDER_ZK_NODES: zookeeper
+            SPRING_CLOUD_STREAM_BINDINGS_INPUT_BINDER: kafka
+            SPRING_CLOUD_STREAM_BINDINGS_INPUT_DESTINATION: textToNER
+            SPRING_CLOUD_STREAM_BINDINGS_OUTPUT_BINDER: kafka
+            SPRING_CLOUD_STREAM_BINDINGS_OUTPUT_DESTINATION: bioToColissi
+            FORMAT: dd/MM/YYYY hh:mm:ss
+            FIXED_DELAY: 3000
+            URLNER: http://wrapper:80/opener
+            URLINSIGHT: "http://${ipinsight}:8080/api/"
+            URLGEOTROUVETHON: "http://${ipgeotrouvethon}:9966/locate/"
+            NER: 'true'
+            MOCK: 'false'
+            JAVA_OPTS:  -Xmx2048m -Xms256m
+            GRAPH_ENABLED: 'true'
+            GRAPH_HOST: "http://${ipinsight}:8080/api/"
+            ELASTICSEARCH_ENABLED: 'true'
+            ELASTICSEARCH_INDEX_NAME: gazetter
+            ELASTICSEARCH_HOST: "${ipelasticsearch}"
+            ELASTICSEARCH_PORT: 9200
+            ELASTICSEARCH_NODE_PORT: 9300
+            ELASTICSEARCH_CLUSTERNAME: insight
