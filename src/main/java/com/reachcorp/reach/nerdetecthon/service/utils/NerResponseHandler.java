@@ -91,7 +91,10 @@ public class NerResponseHandler {
         List<String> terms = entity.getTerms();
         for (String id : terms) {
             Term term = nerResponse.getTerms().get(id);
-            positions.add(term.getOffset());
+            if (term!=null)
+            {
+                positions.add(term.getOffset());
+            }
         }
         insEntity.setTextPositionInfo(positions);
     }
