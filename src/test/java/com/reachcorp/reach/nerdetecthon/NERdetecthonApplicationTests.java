@@ -77,10 +77,11 @@ public class NERdetecthonApplicationTests {
     public void NerDetecthonSourceMessageTest() throws IOException {
         final Logger log = LoggerFactory.getLogger(NERdetecthonApplicationTests.class);
         ObjectMapper mapper = new ObjectMapper();
-        final InputStream resourceAsStream = NERdetecthonApplicationTests.class.getResourceAsStream("/sample_nerdetecton.json");
+        final InputStream resourceAsStream = NERdetecthonApplicationTests.class.getResourceAsStream("/sample_nerdetecton_withlocation.json");
         final NerDetecthonSourceMessage nerDetecthonSourceMessage = mapper.readValue(resourceAsStream, NerDetecthonSourceMessage.class);
         final TwitterSourceMessage twitterSourceMessage =nerDetecthonSourceMessage.getTweet();
-        final SimpleRawData simpleRawData = SimpleRawData.fromTwitterSourceMessage(twitterSourceMessage);
+        String tweetCoordinates = this.nerService.getLocationFromTweet(twitterSourceMessage);
+        final SimpleRawData simpleRawData = SimpleRawData.fromTwitterSourceMessage(twitterSourceMessage, tweetCoordinates);
         final NerJsonObjectResponse nerJsonObjectResponse = this.nerService.submitNerRequest(simpleRawData);
         final String content = nerJsonObjectResponse.getContent();
         Assert.assertNotNull(content);
@@ -102,7 +103,7 @@ public class NERdetecthonApplicationTests {
     public void NerDetecthonSourceMessageInsightTest() throws IOException {
         final Logger log = LoggerFactory.getLogger(NERdetecthonApplicationTests.class);
         ObjectMapper mapper = new ObjectMapper();
-        final InputStream resourceAsStream = NERdetecthonApplicationTests.class.getResourceAsStream("/sample_nerdetecton.json");
+        final InputStream resourceAsStream = NERdetecthonApplicationTests.class.getResourceAsStream("/sample_nerdetecton_withlocation.json");
         final NerDetecthonSourceMessage nerDetecthonSourceMessage = mapper.readValue(resourceAsStream, NerDetecthonSourceMessage.class);
         try {
             this.nerService.doSend(nerDetecthonSourceMessage);

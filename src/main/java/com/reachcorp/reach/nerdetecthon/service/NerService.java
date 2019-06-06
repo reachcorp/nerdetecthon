@@ -13,8 +13,8 @@ import com.reachcorp.reach.nerdetecthon.dto.source.ner.NerJsonObjectResponse;
 import com.reachcorp.reach.nerdetecthon.dto.source.rawtext.RawTextMessage;
 import com.reachcorp.reach.nerdetecthon.dto.source.rss.Item;
 import com.reachcorp.reach.nerdetecthon.dto.source.rss.RssSourceMessage;
-import com.reachcorp.reach.nerdetecthon.dto.source.twitter.TwitterSourceMessage;
 import com.reachcorp.reach.nerdetecthon.dto.source.twitter.NerDetecthonSourceMessage;
+import com.reachcorp.reach.nerdetecthon.dto.source.twitter.TwitterSourceMessage;
 import com.reachcorp.reach.nerdetecthon.service.utils.NerResponseHandler;
 import com.reachcorp.reach.nerdetecthon.service.utils.NerXmlResponseParser;
 import com.reachcorp.reach.nerdetecthon.service.utils.RefGeoUtils;
@@ -58,7 +58,7 @@ public class NerService {
     private String urlinsight;
 
     @Value("${urlgeotrouvethon}")
-    private static String urlgeotrouvethon;
+    private String urlgeotrouvethon;
 
     @Value("${format}")
     private String format;
@@ -122,16 +122,17 @@ public class NerService {
                 nerJsonObjectResponse = submitNerRequest(simpleRawData);
             }
             createInRemoteServices(simpleRawData, nerJsonObjectResponse);
-        }else if (message instanceof NerDetecthonSourceMessage) {
+        } else if (message instanceof NerDetecthonSourceMessage) {
             this.log.info("Processing DETECTHON message");
             final NerDetecthonSourceMessage nerDetecthonSourceMessage = (NerDetecthonSourceMessage) message;
             final TwitterSourceMessage twitterSourceMessage = nerDetecthonSourceMessage.getTweet();
-            final SimpleRawData simpleRawData = SimpleRawData.fromTwitterSourceMessage(twitterSourceMessage);
+            String tweetCoordinates = this.getLocationFromTweet(twitterSourceMessage);
+            final SimpleRawData simpleRawData = SimpleRawData.fromTwitterSourceMessage(twitterSourceMessage, tweetCoordinates);
             NerJsonObjectResponse nerJsonObjectResponse = null;
             if (this.useNer) {
-                    nerJsonObjectResponse = submitNerRequest(simpleRawData);
+                nerJsonObjectResponse = submitNerRequest(simpleRawData);
             }
-            createInRemoteServices(nerDetecthonSourceMessage.getIdBio(),simpleRawData, nerJsonObjectResponse);
+            createInRemoteServices(nerDetecthonSourceMessage.getIdBio(), simpleRawData, nerJsonObjectResponse);
 
         } else if (message instanceof RawTextMessage) {
             this.log.info("Processing RawText message");
@@ -178,13 +179,13 @@ public class NerService {
         return null;
     }
 
-    public static String getLocationFromTweet(final TwitterSourceMessage twitterSourceMessage) {
+    public String getLocationFromTweet(final TwitterSourceMessage twitterSourceMessage) {
         String tweetCoordinates = null;
         try {
             if (twitterSourceMessage.getCoordinates() != null) {
-                String lng = Double.toString((Double) ((ArrayList)((LinkedHashMap) twitterSourceMessage.getCoordinates()).get("coordinates")).get(0));
-                String lat = Double.toString((Double) ((ArrayList)((LinkedHashMap) twitterSourceMessage.getCoordinates()).get("coordinates")).get(1));
-                tweetCoordinates = lat+","+lng;
+                String lng = Double.toString((Double) ((ArrayList) ((LinkedHashMap) twitterSourceMessage.getCoordinates()).get("coordinates")).get(0));
+                String lat = Double.toString((Double) ((ArrayList) ((LinkedHashMap) twitterSourceMessage.getCoordinates()).get("coordinates")).get(1));
+                tweetCoordinates = lat + "," + lng;
             } else if (twitterSourceMessage.getPlace() != null) {
                 tweetCoordinates = RefGeoUtils.getRefGeoCoordinates((String) ((LinkedHashMap) twitterSourceMessage.getPlace()).get("full_name"), urlgeotrouvethon);
             }
@@ -205,7 +206,7 @@ public class NerService {
         rawData.setId(identifiers.getId());
         rawData.setExternalId(identifiers.getExternalId());
         log.info("Sent raw data " + identifiers.getId() + " / " + identifiers.getExternalId() + "  to Insight  ");
-        if (idbio!=null) {
+        if (idbio != null) {
             //create Relation avec idbio
             insightClientService.doSendRelation(idbio, rawData.getExternalId(), "Biographics", "RawData");
         }
@@ -218,25 +219,28 @@ public class NerService {
         // Extract coordinate if Location is present
         String coordinates = null;
 
-        try {
-            final List<String> collect = insightEntities.stream().filter((insightEntity) -> insightEntity instanceof Location).map((insightEntity) -> ((Location) insightEntity).getLocationName()).collect(Collectors.toList());
-            for (String locationName : collect) {
-                this.log.info("Found locationName: " + locationName);
-                if (locationName != null) {
-                    coordinates = RefGeoUtils.getRefGeoCoordinates(locationName, urlgeotrouvethon);
-                    if (coordinates != null)
-                        break;
+        if (simpleRawData.getCoordinates() != null) {
+            coordinates = simpleRawData.getCoordinates();
+        } else {
+            try {
+                final List<String> collect = insightEntities.stream().filter((insightEntity) -> insightEntity instanceof Location).map((insightEntity) -> ((Location) insightEntity).getLocationName()).collect(Collectors.toList());
+                for (String locationName : collect) {
+                    this.log.info("Found locationName: " + locationName);
+                    if (locationName != null) {
+                        coordinates = RefGeoUtils.getRefGeoCoordinates(locationName, urlgeotrouvethon);
+                        if (coordinates != null)
+                            break;
+                    }
                 }
-            }
-            if (coordinates == null) {
-                this.log.warn("Found no coordinates among " + collect.size() + " locations");
-            }
+                if (coordinates == null) {
+                    this.log.warn("Found no coordinates among " + collect.size() + " locations");
+                }
 
 
-        } catch (Exception e) {
-            this.log.error("Error While getting LocationName list", e);
+            } catch (Exception e) {
+                this.log.error("Error While getting LocationName list", e);
+            }
         }
-
         // Update RawData Location
         if (coordinates != null) {
             this.log.info("Updating raw data coordinates");
@@ -376,7 +380,7 @@ public class NerService {
     }
 
     private void createInRemoteServices(SimpleRawData simpleRawData, NerJsonObjectResponse nerObjectResponse) throws Exception {
-        createInRemoteServices(null,simpleRawData,nerObjectResponse);
+        createInRemoteServices(null, simpleRawData, nerObjectResponse);
     }
 
     private static void setFieldValue(Object dto, String fieldName, String externalIdValue) throws IllegalAccessException {

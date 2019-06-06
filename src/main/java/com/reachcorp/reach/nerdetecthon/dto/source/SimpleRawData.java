@@ -61,16 +61,17 @@ public class SimpleRawData {
     }
 
     public static SimpleRawData fromTwitterSourceMessage(final TwitterSourceMessage twitterSourceMessage) {
+        return fromTwitterSourceMessage(twitterSourceMessage, null);
+    }
+
+    public static SimpleRawData fromTwitterSourceMessage(final TwitterSourceMessage twitterSourceMessage, String tweetCoordinates) {
         final SimpleRawData simpleRawData = new SimpleRawData();
         simpleRawData.setSourceName(twitterSourceMessage.getUser().getScreenName());
         simpleRawData.setSourceType("TWITTER");
         simpleRawData.setSourceUrl(twitterSourceMessage.getSource());
         simpleRawData.setText(twitterSourceMessage.getText());
-
-
-        String tweetCoordinates = NerService.getLocationFromTweet(twitterSourceMessage);
         // Coordonnées valides, Geotrouvethon n'a pas renvoyé -99,99
-        if (!tweetCoordinates.equals("-99,99")) {
+        if (tweetCoordinates != null && !tweetCoordinates.equals("-99,99")) {
             simpleRawData.setCoordinates(tweetCoordinates);
         }
 
