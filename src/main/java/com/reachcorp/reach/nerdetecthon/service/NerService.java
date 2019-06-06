@@ -35,6 +35,7 @@ import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -57,7 +58,7 @@ public class NerService {
     private String urlinsight;
 
     @Value("${urlgeotrouvethon}")
-    private String urlgeotrouvethon;
+    private static String urlgeotrouvethon;
 
     @Value("${format}")
     private String format;
@@ -177,6 +178,23 @@ public class NerService {
         return null;
     }
 
+    public static String getLocationFromTweet(final TwitterSourceMessage twitterSourceMessage) {
+        String tweetCoordinates = null;
+        try {
+            if (twitterSourceMessage.getCoordinates() != null) {
+                String lng = Double.toString((Double) ((ArrayList)((LinkedHashMap) twitterSourceMessage.getCoordinates()).get("coordinates")).get(0));
+                String lat = Double.toString((Double) ((ArrayList)((LinkedHashMap) twitterSourceMessage.getCoordinates()).get("coordinates")).get(1));
+                tweetCoordinates = lat+","+lng;
+            } else if (twitterSourceMessage.getPlace() != null) {
+                tweetCoordinates = RefGeoUtils.getRefGeoCoordinates((String) ((LinkedHashMap) twitterSourceMessage.getPlace()).get("full_name"), urlgeotrouvethon);
+            }
+        } catch (Exception ex) {
+            // Récupération des coord failed... on continue
+        }
+
+        return tweetCoordinates;
+    }
+
     private void createInRemoteServices(String idbio, SimpleRawData simpleRawData, NerJsonObjectResponse nerObjectResponse) throws Exception {
         final NerResponseHandler responseHandler = new NerResponseHandler(nerObjectResponse, simpleRawData);
         log.info("Sending raw data to Insight");
@@ -213,6 +231,8 @@ public class NerService {
             if (coordinates == null) {
                 this.log.warn("Found no coordinates among " + collect.size() + " locations");
             }
+
+
         } catch (Exception e) {
             this.log.error("Error While getting LocationName list", e);
         }

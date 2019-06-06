@@ -3,14 +3,22 @@ package com.reachcorp.reach.nerdetecthon.dto.source;
 import com.reachcorp.reach.nerdetecthon.dto.source.rawtext.RawTextMessage;
 import com.reachcorp.reach.nerdetecthon.dto.source.rss.RssSourceMessage;
 import com.reachcorp.reach.nerdetecthon.dto.source.twitter.TwitterSourceMessage;
+import com.reachcorp.reach.nerdetecthon.service.NerService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 
+
 public class SimpleRawData {
+
+    @Autowired
+    private NerService nerService;
+
     private String sourceUrl;
     private String sourceName;
     private String sourceType;
     private String text;
+    private String coordinates;
 
     public String getText() {
         return text;
@@ -40,6 +48,14 @@ public class SimpleRawData {
         return sourceType;
     }
 
+    public String getCoordinates() {
+        return coordinates;
+    }
+
+    public void setCoordinates(String coordinates) {
+        this.coordinates = coordinates;
+    }
+
     public void setSourceType(String sourceType) {
         this.sourceType = sourceType;
     }
@@ -50,6 +66,14 @@ public class SimpleRawData {
         simpleRawData.setSourceType("TWITTER");
         simpleRawData.setSourceUrl(twitterSourceMessage.getSource());
         simpleRawData.setText(twitterSourceMessage.getText());
+
+
+        String tweetCoordinates = NerService.getLocationFromTweet(twitterSourceMessage);
+        // Coordonnées valides, Geotrouvethon n'a pas renvoyé -99,99
+        if (!tweetCoordinates.equals("-99,99")) {
+            simpleRawData.setCoordinates(tweetCoordinates);
+        }
+
         return simpleRawData;
     }
 
