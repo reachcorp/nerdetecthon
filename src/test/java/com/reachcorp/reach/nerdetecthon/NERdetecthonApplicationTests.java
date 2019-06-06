@@ -9,6 +9,8 @@ import com.reachcorp.reach.nerdetecthon.dto.entities.insight.RawData;
 import com.reachcorp.reach.nerdetecthon.dto.source.SimpleRawData;
 import com.reachcorp.reach.nerdetecthon.dto.source.ner.NerJsonObjectResponse;
 import com.reachcorp.reach.nerdetecthon.dto.source.rss.RssSourceMessage;
+import com.reachcorp.reach.nerdetecthon.dto.source.scrapy.ScrapyResult;
+import com.reachcorp.reach.nerdetecthon.dto.source.scrapy.ScrapythonSourceMessage;
 import com.reachcorp.reach.nerdetecthon.dto.source.twitter.TwitterSourceMessage;
 import com.reachcorp.reach.nerdetecthon.dto.source.twitter.NerDetecthonSourceMessage;
 import com.reachcorp.reach.nerdetecthon.service.InsightService;
@@ -171,5 +173,34 @@ public class NERdetecthonApplicationTests {
         Assert.assertEquals("48.87037435,2.3160687345508", coordinates);
         coordinates = RefGeoUtils.getRefGeoCoordinates("zzzzzzzzzzz", urlgeotrouvethon);
         Assert.assertEquals("-99,99", coordinates);
+    }
+
+    @Test
+    public void scrapythonSourceMessageTest() throws IOException {
+        final Logger log = LoggerFactory.getLogger(NERdetecthonApplicationTests.class);
+        ObjectMapper mapper = new ObjectMapper();
+        final InputStream resourceAsStream = NERdetecthonApplicationTests.class.getResourceAsStream("/sample_scrapython.json");
+        final ScrapythonSourceMessage scrapythonSourceMessage = mapper.readValue(resourceAsStream, ScrapythonSourceMessage.class);
+        List<ScrapyResult> scrapyResultList=scrapythonSourceMessage.getScrapyResults();
+        for (ScrapyResult scrapyResult : scrapyResultList
+             ) {
+            final SimpleRawData simpleRawData = SimpleRawData.fromScrapyResult(scrapyResult);
+            assertThat(simpleRawData.getSourceUrl());
+            log.info(simpleRawData.getSourceUrl());
+            log.info(simpleRawData.getSourceName());
+            log.info(simpleRawData.getText());
+            log.info(simpleRawData.getSourceType());
+        }
+        log.info("Nombre de ScrapyResult "+scrapyResultList.size());
+
+    }
+
+    @Test
+    public void scrapythonSourceMessageInsightTest() throws Exception {
+        final Logger log = LoggerFactory.getLogger(NERdetecthonApplicationTests.class);
+        ObjectMapper mapper = new ObjectMapper();
+        final InputStream resourceAsStream = NERdetecthonApplicationTests.class.getResourceAsStream("/sample_scrapython.json");
+        final ScrapythonSourceMessage scrapythonSourceMessage = mapper.readValue(resourceAsStream, ScrapythonSourceMessage.class);
+        this.nerService.doSend(scrapythonSourceMessage);
     }
 }

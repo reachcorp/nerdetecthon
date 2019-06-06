@@ -2,6 +2,7 @@ package com.reachcorp.reach.nerdetecthon.dto.source;
 
 import com.reachcorp.reach.nerdetecthon.dto.source.rawtext.RawTextMessage;
 import com.reachcorp.reach.nerdetecthon.dto.source.rss.RssSourceMessage;
+import com.reachcorp.reach.nerdetecthon.dto.source.scrapy.ScrapyResult;
 import com.reachcorp.reach.nerdetecthon.dto.source.twitter.TwitterSourceMessage;
 import com.reachcorp.reach.nerdetecthon.service.NerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,6 +76,16 @@ public class SimpleRawData {
             simpleRawData.setCoordinates(tweetCoordinates);
         }
 
+        return simpleRawData;
+    }
+
+    public static SimpleRawData fromScrapyResult(final ScrapyResult scrapyResult)
+    {
+        final SimpleRawData simpleRawData = new SimpleRawData();
+        simpleRawData.setSourceUrl(scrapyResult.getUrl());
+        simpleRawData.setText(scrapyResult.getContent());
+        simpleRawData.setSourceName(scrapyResult.getDomainFromUrl());
+        simpleRawData.setSourceType("GOOGLESEARCH");
         return simpleRawData;
     }
 

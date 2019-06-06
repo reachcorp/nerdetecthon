@@ -13,6 +13,8 @@ import com.reachcorp.reach.nerdetecthon.dto.source.ner.NerJsonObjectResponse;
 import com.reachcorp.reach.nerdetecthon.dto.source.rawtext.RawTextMessage;
 import com.reachcorp.reach.nerdetecthon.dto.source.rss.Item;
 import com.reachcorp.reach.nerdetecthon.dto.source.rss.RssSourceMessage;
+import com.reachcorp.reach.nerdetecthon.dto.source.scrapy.ScrapyResult;
+import com.reachcorp.reach.nerdetecthon.dto.source.scrapy.ScrapythonSourceMessage;
 import com.reachcorp.reach.nerdetecthon.dto.source.twitter.NerDetecthonSourceMessage;
 import com.reachcorp.reach.nerdetecthon.dto.source.twitter.TwitterSourceMessage;
 import com.reachcorp.reach.nerdetecthon.service.utils.NerResponseHandler;
@@ -133,7 +135,19 @@ public class NerService {
                 nerJsonObjectResponse = submitNerRequest(simpleRawData);
             }
             createInRemoteServices(nerDetecthonSourceMessage.getIdBio(), simpleRawData, nerJsonObjectResponse);
-
+        } else if (message instanceof ScrapythonSourceMessage) {
+            this.log.info("Processing SCRAPYTHON message");
+            final ScrapythonSourceMessage scrapythonSourceMessage=(ScrapythonSourceMessage) message;
+            List<ScrapyResult> scrapyResultList=scrapythonSourceMessage.getScrapyResults();
+            for (ScrapyResult scrapyResult : scrapyResultList
+                    ) {
+                final SimpleRawData simpleRawData = SimpleRawData.fromScrapyResult(scrapyResult);
+                NerJsonObjectResponse nerJsonObjectResponse = null;
+                if (this.useNer) {
+                    nerJsonObjectResponse = submitNerRequest(simpleRawData);
+                }
+                createInRemoteServices(simpleRawData, nerJsonObjectResponse);
+            }
         } else if (message instanceof RawTextMessage) {
             this.log.info("Processing RawText message");
             final RawTextMessage rawTextSourceMessage = (RawTextMessage) message;
