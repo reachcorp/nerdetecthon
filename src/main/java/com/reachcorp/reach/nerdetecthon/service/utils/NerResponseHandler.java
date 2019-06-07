@@ -42,16 +42,44 @@ public class NerResponseHandler {
         return dto;
     }
 
+    //methode pour construire une liste d'InsightEntity a partir de la reponse de NER
     private List<InsightEntity> buildResponseEntities() {
         if (this.nerResponse == null || this.nerResponse.getEntities() == null)
             return new ArrayList<>();
         return extractInsightEntites(this.nerResponse);
     }
 
+    //methode pour extraire une liste d'InsightEntity a partir de la reponse de NER
     public static List<InsightEntity> extractInsightEntites(final NerJsonObjectResponse response) {
-        return response.getEntities().values().stream()
+
+        //Recuperation des entités de la Reponse de NER avec parfois(souvent) les memes entités
+        List<InsightEntity> insightEntitiesAvecDoublons = response.getEntities().values().stream()
                 .map(dto -> mapToInsightEntityDto(dto, response)).filter(dto -> dto != null)
                 .collect(Collectors.toList());
+
+        //liste de string pour mettre les InsightEntity.ToString
+        final List<String> insightEntitiesString=new ArrayList<>();
+        //liste d'InsightEntity sans doublons
+        final List<InsightEntity> insightEntitiesSansDoublons =new ArrayList<>();
+
+        //algo pour dedoublonner la liste d'entités qui arrive de NER
+        //les InsightEntity n'ont pas d'id, on peut pas utiliser la method equals des objets, ni donc le contains des listes d'objets
+        //on va donc passer par le toString qui fait une String avec tous les attributs de l'objet, on considere que
+        //deux entity sont différentes si leur toString est différent
+        for (InsightEntity entity:insightEntitiesAvecDoublons
+                ) {
+
+            if (!insightEntitiesString.contains(entity.toString()))
+            {
+                //si l'entity.toString n'est pas dans la liste des InsightEntity.ToString
+                //ce n'est pas un doublon, on l'ajoute dans la liste des InsightEntity.ToString
+                insightEntitiesString.add(entity.toString());
+                //et donc aussi dans la liste des InsightEntity sans doublons
+                insightEntitiesSansDoublons.add(entity);
+            }
+        }
+        //on renvoi la liste des InsightEntity sans doublons
+        return insightEntitiesSansDoublons;
     }
 
     private static InsightEntity mapToInsightEntityDto(Entity entity, final NerJsonObjectResponse nerResponse) {
