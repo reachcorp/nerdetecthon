@@ -131,6 +131,19 @@ public class NERdetecthonApplicationTests {
     }
 
     @Test
+    public void twitterMessageToNerToInsightTest() throws IOException {
+        final ObjectMapper mapper = new ObjectMapper();
+        final InputStream resourceAsStream = NERdetecthonApplicationTests.class.getResourceAsStream("/sample_twitter.json");
+        final TwitterSourceMessage twitterSourceMessage = mapper.readValue(resourceAsStream, TwitterSourceMessage.class);
+        try {
+            this.nerService.doSend(twitterSourceMessage);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @Test
     public void rssMessageToNerToInsightTest() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         final InputStream resourceAsStream = NERdetecthonApplicationTests.class.getResourceAsStream("/sample.json");
